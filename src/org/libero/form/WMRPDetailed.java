@@ -710,6 +710,7 @@ public class WMRPDetailed extends MRPDetailed implements IFormController, EventL
 			 sql.append(" AND "+getTableName()+".idmoref=?");
 		 }
 		 log.fine("MRP Info.setWhereClause="+ sql.toString());
+
 		 return sql.toString();        
 	}
 	
@@ -854,9 +855,10 @@ public class WMRPDetailed extends MRPDetailed implements IFormController, EventL
 			 log.fine("Resource=" + order_id);
 		 }
 		 if(getMoID()>0) {
-			 int order_id = getMoID();
-			 pstmt.setInt(index++, order_id);
-			 log.fine("Resource=" + order_id);
+			 int ordermo_id = getMoID();
+			 System.out.println("sfsf"+ordermo_id);
+			 pstmt.setInt(index++, ordermo_id);
+			 log.fine("Resource=" + ordermo_id);
 		 }
 		 if (getM_Warehouse_ID() > 0)
 		 {
@@ -939,8 +941,8 @@ public class WMRPDetailed extends MRPDetailed implements IFormController, EventL
 	 
 	 protected int  getMoID() {
 			Object o = fMO_ID.getValue();
-			return o != null && (o instanceof Integer) ? (Integer)o : Integer.valueOf(0);  
-		}
+			return o != null && (o instanceof Integer) ? (Integer)o : Integer.valueOf(0); 
+	 }
 	@Override
 	public void onChange(ListDataEvent event) {
 		// TODO Auto-generated method stub
@@ -991,6 +993,7 @@ public class WMRPDetailed extends MRPDetailed implements IFormController, EventL
 			 {  
 			 sql.append(dynWhere);   //  includes first AND
 			 }
+			 System.out.println(sql.toString());
 			 String xSql = Msg.parseTranslation(getCtx(), sql.toString());
 			 xSql = MRole.getDefault().addAccessSQL(xSql, getTableName(), 
 					 MRole.SQL_FULLYQUALIFIED, MRole.SQL_RO);
@@ -998,6 +1001,7 @@ public class WMRPDetailed extends MRPDetailed implements IFormController, EventL
 			 {
 				 PreparedStatement pstmt = DB.prepareStatement(xSql,null);
 				 log.fine("SQL=" + xSql);
+				 System.out.println("SQL=" + xSql);
 				 setParameters (pstmt, false);
 				 ResultSet rs = pstmt.executeQuery();
 				 p_table.loadTable(rs);
