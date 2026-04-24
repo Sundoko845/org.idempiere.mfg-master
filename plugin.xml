@@ -411,4 +411,12 @@
             class="org.libero.process.GenerateAttributeSO">
       </process>
    </extension>
+   <extension
+         id="org.libero.process.GenerateAttributeFifoPO"
+         name="generateattributeso"
+         point="org.adempiere.base.Process">
+      <process
+            class="org.libero.process.GenerateAttributeFifoPO">
+      </process>
+   </extension>
 </plugin>
