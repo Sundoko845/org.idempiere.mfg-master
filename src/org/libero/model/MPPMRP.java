@@ -48,6 +48,7 @@ import org.compiere.model.MRequisition;
 import org.compiere.model.MRequisitionLine;
 import org.compiere.model.MResource;
 import org.compiere.model.MResourceAssignment;
+import org.compiere.model.MTable;
 import org.compiere.model.PO;
 import org.compiere.model.Query;
 import org.compiere.model.X_M_Forecast;
@@ -1202,7 +1203,7 @@ return null;
 		
 		boolean isReleased = false;
 		MOrder ord = ((MOrder) ol.getParent());
-		System.out.println();
+	
 		//MRequisitionLine linereq = MPPMRP.COLUMNNAME_M_RequisitionLine_ID
 		MPPMRP mrp;
 		isReleased = MOrder.DOCSTATUS_InProgress.equals(ord.getDocStatus()) 
@@ -1235,9 +1236,22 @@ return null;
 		mrp.setM_Product_ID(ol.getM_Product_ID());
 		mrp.setQty(ol.getQtyOrdered().subtract(ol.getQtyDelivered()));
 		mrp.setDocStatus(DOCSTATUS_InProgress); 
+	     if(!ord.isSOTrx()) {
+	    	 int idreqline=  new Query(ol.getCtx(), MRequisitionLine.Table_Name ,"c_orderline_id=?", ol.get_TrxName())	   
+						.setParameters(ol.getC_OrderLine_ID()).firstIdOnly();
+						;
+				if(idreqline > 0) {
+					MRequisitionLine linereq = new MRequisitionLine(ol.getCtx(), idreqline, ol.get_TrxName());
+					
+					mrp.set_CustomColumn("pp_orderref_id", DB.getSQLValue(ol.get_TrxName(), "select pp_orderref_id from PP_MRP where M_Requisition_ID = "+linereq.getM_Requisition_ID()));
+				
+				} 
+	     }	
 		mrp.saveEx(ol.get_TrxName());
 
+
 		MOrder o = ol.getParent();
+		
 		MDocType dt = MDocType.get(o.getCtx(), o.getC_DocTypeTarget_ID());
 		String DocSubTypeSO = dt.getDocSubTypeSO();
 		if(MDocType.DOCSUBTYPESO_StandardOrder.equals(DocSubTypeSO))

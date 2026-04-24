@@ -403,4 +403,12 @@
             class="org.libero.process.GenerateFifoProductPOS">
       </process>
    </extension>
+   <extension
+         id="org.libero.process.GenerateAttributeSO"
+         name="generateattributeso"
+         point="org.adempiere.base.Process">
+      <process
+            class="org.libero.process.GenerateAttributeSO">
+      </process>
+   </extension>
 </plugin>
