@@ -710,6 +710,8 @@ public class MPPOrder extends X_PP_Order implements DocAction,DocOptions
 			line.saveEx(get_TrxName());
 		}
 	} //	reserveStock
+	
+	
 
 	public boolean approveIt()
 	{
@@ -730,6 +732,8 @@ public class MPPOrder extends X_PP_Order implements DocAction,DocOptions
 
 		return true;
 	} //	approveIt
+	
+	
 
 	public boolean rejectIt()
 	{
@@ -922,6 +926,12 @@ public class MPPOrder extends X_PP_Order implements DocAction,DocOptions
 	public boolean reActivateIt()
 	{
 		// After reActivate
+		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_BEFORE_REACTIVATE);
+		MPPOrderCost ppordercost = new MPPOrderCost(getCtx(), getPP_Order_ID(), get_TrxName());
+		if(ppordercost != null) {
+			DB.executeUpdate("delete from PP_Order_Cost where pp_order_id = "+getPP_Order_ID(), get_TrxName());
+		}
+		
 		m_processMsg = ModelValidationEngine.get().fireDocValidate(this,ModelValidator.TIMING_AFTER_REACTIVATE);
 		if (m_processMsg != null)
 			return false;

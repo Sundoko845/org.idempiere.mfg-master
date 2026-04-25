@@ -154,6 +154,7 @@ public class MFG_Validator extends AbstractEventHandler {
 		registerTableEvent(IEventTopics.DOC_AFTER_COMPLETE, I_M_InOut.Table_Name);
 		registerTableEvent(IEventTopics.DOC_AFTER_COMPLETE, I_C_Order.Table_Name);
 		registerTableEvent(IEventTopics.DOC_BEFORE_REACTIVATE, I_DD_Order.Table_Name);
+		registerTableEvent(IEventTopics.DOC_BEFORE_REACTIVATE, MPPOrder.Table_Name);
 		registerTableEvent(IEventTopics.DOC_AFTER_COMPLETE, MPPOrder.Table_Name);
 		registerTableEvent(IEventTopics.DOC_BEFORE_COMPLETE, MPPOrder.Table_Name);
 		registerTableEvent(IEventTopics.DOC_BEFORE_PREPARE, MPPOrder.Table_Name);
@@ -343,14 +344,15 @@ public class MFG_Validator extends AbstractEventHandler {
 					 }
 			}
 			
-			if(po instanceof MPPOrder && (IEventTopics.DOC_BEFORE_COMPLETE == type || IEventTopics.DOC_BEFORE_PREPARE  == type )) {
-				MPPOrder mppOrder = (MPPOrder)po;
+			if(po instanceof MPPOrder && (IEventTopics.DOC_BEFORE_COMPLETE == type || IEventTopics.DOC_BEFORE_PREPARE  == type  )) {
+				MPPOrder mppOrder = (MPPOrder)po;				
 				if(mppOrder.getM_Product().getM_AttributeSet_ID()>0) {
 					if(mppOrder.getM_AttributeSetInstance_ID() == 0) {
 						throw new AdempiereException("No Attribute");
 					}
 				}
 			}
+			
 			
 			
 			
@@ -568,11 +570,7 @@ public class MFG_Validator extends AbstractEventHandler {
 //						print(order);
 //					}
 					
-				} else if(po instanceof MPPOrder && type == IEventTopics.DOC_AFTER_COMPLETE) {
-					logEvent(event, po, type);//
-					MPPOrder morder = (MPPOrder)po;
-					
-				}
+				} 
 			}
 	}
 	

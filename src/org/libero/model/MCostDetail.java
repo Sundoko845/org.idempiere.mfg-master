@@ -1117,6 +1117,22 @@ public class MCostDetail extends X_M_CostDetail
 				cost.add(amt, qty);
 				if (log.isLoggable(Level.FINER)) log.finer("PO - Standard - " + cost);
 			}
+			else if (ce.isFifo()
+					|| ce.isLifo())
+				{
+					//	Real ASI - costing level Org
+					MCostQueue cq = MCostQueue.get(product, getM_AttributeSetInstance_ID(), 
+						as, Org_ID, ce.getM_CostElement_ID(), get_TrxName());
+					cq.setCosts(amt, qty, precision);
+					cq.saveEx();
+					//	Get Costs - costing level Org/ASI
+					MCostQueue[] cQueue = MCostQueue.getQueue(product, M_ASI_ID, 
+						as, Org_ID, ce, get_TrxName());
+					if (cQueue != null && cQueue.length > 0)
+						cost.setCurrentCostPrice(cQueue[0].getCurrentCostPrice());
+					cost.add(amt, qty);
+					if (log.isLoggable(Level.FINER)) log.finer("Inv - FiFo/LiFo - " + cost);
+				}
 			else if (ce.isUserDefined())
 			{
 				//	Interface
@@ -1144,22 +1160,7 @@ public class MCostDetail extends X_M_CostDetail
 			{
 				cost.setWeightedAverage(amt, qty);
 			}
-			else if (ce.isFifo()
-				|| ce.isLifo())
-			{
-				//	Real ASI - costing level Org
-				MCostQueue cq = MCostQueue.get(product, getM_AttributeSetInstance_ID(), 
-					as, Org_ID, ce.getM_CostElement_ID(), get_TrxName());
-				cq.setCosts(amt, qty, precision);
-				cq.saveEx();
-				//	Get Costs - costing level Org/ASI
-				MCostQueue[] cQueue = MCostQueue.getQueue(product, M_ASI_ID, 
-					as, Org_ID, ce, get_TrxName());
-				if (cQueue != null && cQueue.length > 0)
-					cost.setCurrentCostPrice(cQueue[0].getCurrentCostPrice());
-				cost.add(amt, qty);
-				if (log.isLoggable(Level.FINER)) log.finer("Inv - FiFo/LiFo - " + cost);
-			}
+		
 			else if (ce.isLastInvoice() && !costAdjustment)
 			{
 				if (!isReturnTrx)
