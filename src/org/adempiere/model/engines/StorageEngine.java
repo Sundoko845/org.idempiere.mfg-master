@@ -140,7 +140,7 @@ public class StorageEngine
 								
 				//	Fallback: Update Storage - see also VMatch.createMatchRecord
 			
-				Timestamp datematerialpolicy = DB.getSQLValueTS(null, "select datematerialpolicy from m_storage where  m_product_id = "+docLine.getM_Product_ID()+" and m_locator_id = "+docLine.getM_Locator_ID()+" and M_AttributeSetInstance_ID = "+docLine.getM_AttributeSetInstance_ID());
+				Timestamp datematerialpolicy = DB.getSQLValueTS(null, "select datematerialpolicy from m_storage where qtyonhand > 0 and m_product_id = "+docLine.getM_Product_ID()+" and m_locator_id = "+docLine.getM_Locator_ID()+" and M_AttributeSetInstance_ID = "+docLine.getM_AttributeSetInstance_ID());
 				
 			    System.out.println("tanggal"+datematerialpolicy+" "+docLine.getM_AttributeSetInstance_ID()+" "+Qty);
 				if (!MStorageOnHand.add(docLine.getCtx(), M_Warehouse_ID, 

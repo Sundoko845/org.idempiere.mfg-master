@@ -359,13 +359,13 @@ public class OrderReceiptIssue extends GenForm {
 				+ "obl.QtyBatch," // 17
 				+ "obl.ComponentType," // 18
 				+ "obl.QtyRequired - QtyDelivered AS QtyOpen," // 19
-				+ "obl.QtyDelivered" // 20
+				+ "obl.QtyDelivered,coalesce(mpc.costingmethod,'S') != 'F'" // 20
 				+ " FROM PP_Order_BOMLine obl"
 				+ " INNER JOIN M_Product p ON (obl.M_Product_ID = p.M_Product_ID) "
 				+ " INNER JOIN C_UOM u ON (p.C_UOM_ID = u.C_UOM_ID) "
 				+ " INNER JOIN M_Warehouse w ON (w.M_Warehouse_ID = obl.M_Warehouse_ID) "
 				+ " INNER JOIN M_Product_Category_Acct mpc on (mpc.M_Product_Category_ID = p.M_Product_Category_ID)"
-				+ " WHERE obl.PP_Order_ID = ?  " + " ORDER BY obl."
+				+ " WHERE obl.PP_Order_ID = ? " + " ORDER BY obl."
 				+ MPPOrderBOMLine.COLUMNNAME_Line;
 		// reset table
 		int row = 0;
@@ -595,6 +595,7 @@ public class OrderReceiptIssue extends GenForm {
 				}
 
 				row++;
+				
 
 				if (isOnlyIssue() || isBackflush()) {
 					int warehouse_id = rs.getInt(13);

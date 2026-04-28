@@ -1019,7 +1019,10 @@ return null;
 	{
 		setPP_Order_ID(o.getPP_Order_ID());
 		setOrderType(ORDERTYPE_ManufacturingOrder);
-		set_CustomColumn("pp_orderref_id", o.getPP_Order_ID());
+		if(get_ValueAsInt("pp_orderref_id")==0) {
+			set_CustomColumn("pp_orderref_id", o.getPP_Order_ID());
+		}
+		
 		//
 		setName(o.getDocumentNo());
 		setDescription(o.getDescription());
@@ -1389,7 +1392,9 @@ return null;
 		mrp.setM_Warehouse_ID(obl.getM_Warehouse_ID());
 		mrp.setM_Product_ID(obl.getM_Product_ID());
 		mrp.setQty(qty);
-		mrp.set_CustomColumn("pp_orderref_id", obl.getParent().getPP_Order_ID());
+		if(mrp.get_ValueAsInt("pp_orderref_id") == 0) {
+			mrp.set_CustomColumn("pp_orderref_id", obl.getParent().getPP_Order_ID());
+		}		
 		mrp.saveEx(trxName);
 	}
 

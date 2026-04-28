@@ -2639,6 +2639,9 @@ public class MPPOrder extends X_PP_Order implements DocAction,DocOptions
 					log.info("Element : "+element+", Node="+node
 							+", BaseValue="+baseValue+", rate="+rate
 							+", nodeCost="+nodeCost+" => Cost="+segmentCost);
+					System.out.println("Element : "+element+", Node="+node
+							+", BaseValue="+baseValue+", rate="+rate
+							+", nodeCost="+nodeCost+" => Cost="+segmentCost);
 					// Update AD_WF_Node.Cost:
 					node.setCost(node.getCost().add(nodeCost));
 				}

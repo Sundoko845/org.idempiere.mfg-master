@@ -60,6 +60,7 @@ import org.compiere.model.MAcctSchema;
 import org.compiere.model.MAttributeSetInstance;
 import org.compiere.model.MColumn;
 import org.compiere.model.MCost;
+import org.compiere.model.MCostElement;
 import org.compiere.model.MCostQueue;
 import org.compiere.model.MDocType;
 import org.compiere.model.MLocator;
@@ -69,6 +70,7 @@ import org.compiere.model.MLookupFactory;
 import org.compiere.model.MLot;
 import org.compiere.model.MLotCtl;
 import org.compiere.model.MProduct;
+import org.compiere.model.MProductCategoryAcct;
 import org.compiere.model.MTab;
 import org.compiere.model.MWindow;
 import org.compiere.util.DB;
@@ -935,26 +937,29 @@ ValueChangeListener,Serializable,WTableModelListener
 			return false;
 		}
 		
-		if(getM_AttributeSetInstance_ID()>0) {
-			System.out.println(getM_Product_ID() +"-"+ getM_AttributeSetInstance_ID() );
-			if(DB.getSQLValueBD(null, "select coalesce(cumulatedamt,0) from m_cost where m_costelement_id = 1000002 and m_product_id = " +getM_Product_ID()+" and m_attributesetinstance_id = "+ getM_AttributeSetInstance_ID()).compareTo(BigDecimal.ZERO)>0 || DB.getSQLValueBD(null, "select  coalesce(cumulatedamt,0) from m_cost where m_costelement_id = 1000002 and m_product_id = " +getM_Product_ID()+" and m_attributesetinstance_id = "+ getM_AttributeSetInstance_ID()).compareTo(BigDecimal.ZERO)<0 ) {
-				MAttributeSetInstance attributeSetInstance = new MAttributeSetInstance(getPP_Order().getCtx(), 0, getPP_Order().get_TrxName());
-				attributeSetInstance.setM_AttributeSet_ID(getPP_Order().getM_Product().getM_AttributeSet_ID());
-				attributeSetInstance.setM_Lot_ID(getPP_Order().getM_AttributeSetInstance().getM_Lot_ID());
-				attributeSetInstance.setAD_Org_ID(getPP_Order().getAD_Org_ID());
-				attributeSetInstance.setDescription(getPP_Order().getM_AttributeSetInstance().getDescription());
-				attributeSetInstance.setLot(getPP_Order().getLot());
-				if(attributeSetInstance.save()) {
-					setM_AttributeSetInstance_ID(attributeSetInstance.getM_AttributeSetInstance_ID());
-					MPPOrder mppOrder = new MPPOrder(getPP_Order().getCtx(), getPP_Order_ID(), getPP_Order().get_TrxName());
-					mppOrder.setM_AttributeSetInstance_ID(attributeSetInstance.getM_AttributeSetInstance_ID());
-					if(mppOrder.save()) {
-						costPPorder(mppOrder);
-						costQueuePPorder(mppOrder);
-					}
-				}	
-			}
-		}
+//		if(getM_AttributeSetInstance_ID()>0) {
+//			System.out.println(getM_Product_ID() +"-"+ getM_AttributeSetInstance_ID() );
+//			//if(DB.getSQLValueBD(null, "select coalesce(cumulatedamt,0) from m_cost where m_costelement_id = 1000002 and m_product_id = " +getM_Product_ID()+" and m_attributesetinstance_id = "+ getM_AttributeSetInstance_ID()).compareTo(BigDecimal.ZERO)>0 || DB.getSQLValueBD(null, "select  coalesce(cumulatedamt,0) from m_cost where m_costelement_id = 1000002 and m_product_id = " +getM_Product_ID()+" and m_attributesetinstance_id = "+ getM_AttributeSetInstance_ID()).compareTo(BigDecimal.ZERO)<0 ) {
+////				MAttributeSetInstance attributeSetInstance = new MAttributeSetInstance(getPP_Order().getCtx(), 0, getPP_Order().get_TrxName());
+////				attributeSetInstance.setM_AttributeSet_ID(getPP_Order().getM_Product().getM_AttributeSet_ID());
+////				attributeSetInstance.setM_Lot_ID(getPP_Order().getM_AttributeSetInstance().getM_Lot_ID());
+////				attributeSetInstance.setAD_Org_ID(getPP_Order().getAD_Org_ID());
+////				attributeSetInstance.setDescription(getPP_Order().getM_AttributeSetInstance().getDescription());
+////				attributeSetInstance.setLot(getPP_Order().getLot());
+////				if(attributeSetInstance.save()) {
+////					setM_AttributeSetInstance_ID(attributeSetInstance.getM_AttributeSetInstance_ID());
+////					MPPOrder mppOrder = new MPPOrder(getPP_Order().getCtx(), getPP_Order_ID(), getPP_Order().get_TrxName());
+////					mppOrder.setM_AttributeSetInstance_ID(attributeSetInstance.getM_AttributeSetInstance_ID());
+//			MAcctSchema acctSchema = new MAcctSchema(getPP_Order().getCtx(),1000000 , getPP_Order().get_TrxName());	
+//			MCostElement
+//			        MCost costprd = new MCost(getPP_Order().getM_Product(), getM_AttributeSetInstance_ID(),acctSchema, 0, i)
+//					if(mppOrder.save()) {
+//						costPPorder(mppOrder);
+//						costQueuePPorder(mppOrder);
+//					}
+//			//	}	
+//		//	}
+//		}
 		
 		
 		
@@ -976,14 +981,17 @@ ValueChangeListener,Serializable,WTableModelListener
 					
 					KeyNamePair productkey = (KeyNamePair) issue.getValueAt(i, 3);
 					KeyNamePair productasi = (KeyNamePair) issue.getValueAt(i, 5);
+					MAcctSchema acctSchema = new MAcctSchema(getPP_Order().getCtx(),1000000 , getPP_Order().get_TrxName());
+					MProductCategoryAcct mpc = MProductCategoryAcct.get(getPP_Order().getM_Product().getM_Product_Category_ID(), acctSchema.getC_AcctSchema_ID());
+					MCostElement costelemnt = MCostElement.getMaterialCostElement(getPP_Order().getCtx(), mpc.getCostingMethod());
 					
-					costfifoprdmaster = (DB.getSQLValueBD(null, "select currentcostprice from m_cost where m_costelement_id = 1000002 and m_product_id = " +getM_Product_ID()+" and m_attributesetinstance_id = "+ getM_AttributeSetInstance_ID()));
+					costfifoprdmaster = (DB.getSQLValueBD(null, "select currentcostprice from m_cost where m_costelement_id = "+costelemnt.getM_CostElement_ID()+" and m_product_id = " +getM_Product_ID()+" and m_attributesetinstance_id = "+ getM_AttributeSetInstance_ID()));
 					
 					//int attribute =  Integer.parseInt(issue.getValueAt(i, 5).toString()) ;
-					costfifo = (getValueBigDecimal(issue, i, 8).multiply(DB.getSQLValueBD(null, "select currentcostprice from m_cost where m_costelement_id = 1000002 and m_product_id = " +productkey.getKey()+" and m_attributesetinstance_id = "+ productasi.getKey()))).divide(getToDeliverQty(), RoundingMode.HALF_EVEN);
-					DB.executeUpdate("update m_cost set currentcostprice = "+costfifo.add(costfifoprdmaster)+" where  m_costelement_id = 1000002 and m_product_id = " +getM_Product_ID()+" and m_attributesetinstance_id = "+ getM_AttributeSetInstance_ID(), null);
+					costfifo = (getValueBigDecimal(issue, i, 8).multiply(DB.getSQLValueBD(null, "select currentcostprice from m_cost where m_costelement_id = "+costelemnt.getM_CostElement_ID()+" and m_product_id = " +productkey.getKey()+" and m_attributesetinstance_id = "+ productasi.getKey()))).divide(getToDeliverQty(), RoundingMode.HALF_EVEN);
+					DB.executeUpdate("update m_cost set currentcostprice = "+costfifo.add(costfifoprdmaster)+" where  m_costelement_id = "+costelemnt.getM_CostElement_ID()+" and m_product_id = " +getM_Product_ID()+" and m_attributesetinstance_id = "+ getM_AttributeSetInstance_ID(), null);
 					
-					System.out.println("ssd"+productkey.getKey()+" "+productasi.getKey()+" "+getValueBigDecimal(issue, i, 8).multiply(DB.getSQLValueBD(null, "select currentcostprice from m_cost where m_costelement_id = 1000002 and m_product_id = " +productkey.getKey()+" and m_attributesetinstance_id = "+ productasi.getKey())) );
+					//System.out.println("ssd"+productkey.getKey()+" "+productasi.getKey()+" "+getValueBigDecimal(issue, i, 8).multiply(DB.getSQLValueBD(null, "select currentcostprice from m_cost where m_costelement_id = 1000002 and m_product_id = " +productkey.getKey()+" and m_attributesetinstance_id = "+ productasi.getKey())) );
 				}
 				
 				}
@@ -1046,65 +1054,65 @@ ValueChangeListener,Serializable,WTableModelListener
 
 		return true;
 	}
+//	
+//	public void costPPorder (MPPOrder pporder){
+//		MAcctSchema acctSchema = new MAcctSchema(pporder.getCtx(),1000000 , pporder.get_TrxName());	
+//				if(pporder.getM_AttributeSetInstance_ID()>0) {					
+//						  MProduct product = new MProduct(pporder.getCtx(), pporder.getM_Product_ID(), pporder.get_TrxName());
+//						  MCost cost = new MCost(product, pporder.getM_AttributeSetInstance_ID(), acctSchema, 0, 1000002);
+//						  cost.setCurrentCostPrice(DB.getSQLValueBD(pporder.get_TrxName(), "select sum(currentcostprice) from m_cost where m_costelement_id != 1000002 and m_product_id =  "+product.getM_Product_ID()));
+//						  cost.save();
+//				}	 
+//		  
+//	}
+//	
+//	public  void costQueuePPorder (MPPOrder mppOrder){
+//		MAcctSchema acctSchema = new MAcctSchema(mppOrder.getCtx(),1000000 , mppOrder.get_TrxName());
+//		
+//				if(mppOrder.getM_AttributeSetInstance_ID()>0) {
+//					
+//					      MProduct product = new MProduct(mppOrder.getCtx(), mppOrder.getM_Product_ID(), mppOrder.get_TrxName());
+//						  MCostQueue costQueue = new MCostQueue(product, mppOrder.getM_AttributeSetInstance_ID(), acctSchema, 0, 1000002, mppOrder.get_TrxName());
+//						  costQueue.setCurrentCostPrice(BigDecimal.ZERO);
+//						  costQueue.save();
+//							
+//					
+//				}
+//			
+//			
+//		  
+//		
+//	}
 	
-	public void costPPorder (MPPOrder pporder){
-		MAcctSchema acctSchema = new MAcctSchema(pporder.getCtx(),1000000 , pporder.get_TrxName());	
-				if(pporder.getM_AttributeSetInstance_ID()>0) {					
-						  MProduct product = new MProduct(pporder.getCtx(), pporder.getM_Product_ID(), pporder.get_TrxName());
-						  MCost cost = new MCost(product, pporder.getM_AttributeSetInstance_ID(), acctSchema, 0, 1000002);
-						  cost.setCurrentCostPrice(DB.getSQLValueBD(pporder.get_TrxName(), "select sum(currentcostprice) from m_cost where m_costelement_id != 1000002 and m_product_id =  "+product.getM_Product_ID()));
-						  cost.save();
-				}	 
-		  
-	}
-	
-	public  void costQueuePPorder (MPPOrder mppOrder){
-		MAcctSchema acctSchema = new MAcctSchema(mppOrder.getCtx(),1000000 , mppOrder.get_TrxName());
-		
-				if(mppOrder.getM_AttributeSetInstance_ID()>0) {
-					
-					      MProduct product = new MProduct(mppOrder.getCtx(), mppOrder.getM_Product_ID(), mppOrder.get_TrxName());
-						  MCostQueue costQueue = new MCostQueue(product, mppOrder.getM_AttributeSetInstance_ID(), acctSchema, 0, 1000002, mppOrder.get_TrxName());
-						  costQueue.setCurrentCostPrice(BigDecimal.ZERO);
-						  costQueue.save();
-							
-					
-				}
-			
-			
-		  
-		
-	}
-	
-	private void GenerateCodeAttributepporder(MPPOrder mppOrder) {
-		MLot lot = new MLot(mppOrder.getCtx(), 0, mppOrder.get_TrxName());
-		MLotCtl lotCtl = new MLotCtl(mppOrder.getCtx(), DB.getSQLValue(mppOrder.get_TrxName(), "select M_LotCtl_ID from M_AttributeSet ma left join m_product mp on mp.M_AttributeSet_ID = ma.M_AttributeSet_ID where mp.m_product_id = "+mppOrder.getM_Product_ID()), mppOrder.get_TrxName());
-		lot.setM_Product_ID(mppOrder.getM_Product_ID());
-		lot.setM_LotCtl_ID(lotCtl.getM_LotCtl_ID());
-		lot.setName(lotCtl.getPrefix()+""+lotCtl.getCurrentNext());
-		if(lot.save()) {
-			MAttributeSetInstance attributeSetInstance = new MAttributeSetInstance(mppOrder.getCtx(), 0, mppOrder.get_TrxName());
-			attributeSetInstance.setM_AttributeSet_ID(mppOrder.getM_Product().getM_AttributeSet_ID());
-			attributeSetInstance.setM_Lot_ID(lot.getM_Lot_ID());
-			attributeSetInstance.setAD_Org_ID(mppOrder.getAD_Org_ID());
-			attributeSetInstance.setDescription(lotCtl.getPrefix()+""+lotCtl.getCurrentNext());
-			attributeSetInstance.setLot(lotCtl.getPrefix()+""+lotCtl.getCurrentNext());
-			if(attributeSetInstance.save(mppOrder.get_TrxName())) {
-				
-				lotCtl.setCurrentNext(lotCtl.getCurrentNext()+lotCtl.getIncrementNo());
-				lotCtl.save();
-				
-				MPPOrder Line = new MPPOrder(mppOrder.getCtx(), mppOrder.getPP_Order_ID(), mppOrder.get_TrxName());
-				Line.setM_AttributeSetInstance_ID(attributeSetInstance.getM_AttributeSetInstance_ID());
-				if(Line.save()) {
-					costPPorder(Line);
-					costQueuePPorder(Line);
-				}
-			}
-		}
-		
-	
-}
+//	private void GenerateCodeAttributepporder(MPPOrder mppOrder) {
+//		MLot lot = new MLot(mppOrder.getCtx(), 0, mppOrder.get_TrxName());
+//		MLotCtl lotCtl = new MLotCtl(mppOrder.getCtx(), DB.getSQLValue(mppOrder.get_TrxName(), "select M_LotCtl_ID from M_AttributeSet ma left join m_product mp on mp.M_AttributeSet_ID = ma.M_AttributeSet_ID where mp.m_product_id = "+mppOrder.getM_Product_ID()), mppOrder.get_TrxName());
+//		lot.setM_Product_ID(mppOrder.getM_Product_ID());
+//		lot.setM_LotCtl_ID(lotCtl.getM_LotCtl_ID());
+//		lot.setName(lotCtl.getPrefix()+""+lotCtl.getCurrentNext());
+//		if(lot.save()) {
+//			MAttributeSetInstance attributeSetInstance = new MAttributeSetInstance(mppOrder.getCtx(), 0, mppOrder.get_TrxName());
+//			attributeSetInstance.setM_AttributeSet_ID(mppOrder.getM_Product().getM_AttributeSet_ID());
+//			attributeSetInstance.setM_Lot_ID(lot.getM_Lot_ID());
+//			attributeSetInstance.setAD_Org_ID(mppOrder.getAD_Org_ID());
+//			attributeSetInstance.setDescription(lotCtl.getPrefix()+""+lotCtl.getCurrentNext());
+//			attributeSetInstance.setLot(lotCtl.getPrefix()+""+lotCtl.getCurrentNext());
+//			if(attributeSetInstance.save(mppOrder.get_TrxName())) {
+//				
+//				lotCtl.setCurrentNext(lotCtl.getCurrentNext()+lotCtl.getIncrementNo());
+//				lotCtl.save();
+//				
+//				MPPOrder Line = new MPPOrder(mppOrder.getCtx(), mppOrder.getPP_Order_ID(), mppOrder.get_TrxName());
+//				Line.setM_AttributeSetInstance_ID(attributeSetInstance.getM_AttributeSetInstance_ID());
+//				if(Line.save()) {
+//					costPPorder(Line);
+//					costQueuePPorder(Line);
+//				}
+//			}
+//		}
+//		
+//	
+//}
 	
 //	public void createUsageVariance(I_PP_Order_Node orderNode,MPPOrder order)
 //	{

@@ -124,7 +124,7 @@ public class CostEngine
 
 	public BigDecimal getProductStandardCostPrice(MPPCostCollector cc, MProduct product, MAcctSchema as, MCostElement element)
 	{
-		System.out.println("yoyok"+element.getCostingMethod());
+	
 		if(element.getCostingMethod().equals("F")) {
 			d = new CostDimension(product,
 					as, as.getM_CostType_ID(),
@@ -247,7 +247,7 @@ public class CostEngine
 							amt,
 							qty,
 							model.getDescription(),
-							mtrx.get_TrxName());
+							mtrx.get_TrxName(),mtrx.getMovementDate());
 //					cd.setMovementDate(mtrx.getMovementDate());
 //					if (cost != null)
 //					{	
@@ -450,7 +450,7 @@ public class CostEngine
 						costs.negate().multiply(new BigDecimal(cc.getPP_Order_Node().get_Value("jmltenagakerja").toString())),
 						qty.negate(),
 						"", // Description,
-						cc.get_TrxName());
+						cc.get_TrxName(),cc.getDateAcct());
 				cd.setPP_Cost_Collector_ID(cc.getPP_Cost_Collector_ID());
 				cd.saveEx();
 				processCostDetail(cd);

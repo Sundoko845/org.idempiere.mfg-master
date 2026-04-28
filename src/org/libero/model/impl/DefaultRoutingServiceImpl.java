@@ -175,10 +175,13 @@ public class DefaultRoutingServiceImpl implements RoutingService
 			duration = estimateWorkingTime(node).doubleValue(); 
 			//-->Ferry, not supported because can not count total duration based on object node
 			//throw new AdempiereException("calculateDuration not supported using Node !!!");
+			System.out.println("yoyowfl");
 			if (batchSize > 1) 
 				totalDuration = ((setupTime + queuingTime + waitingTime + movingTime) / batchSize) + duration;			
 			else
-				totalDuration = (setupTime + queuingTime + waitingTime + movingTime) + duration;
+				//yoyo mark just duration 
+				//totalDuration = (setupTime + queuingTime + waitingTime + movingTime) + duration;
+				totalDuration =  duration;
 			//<--Ferry
 		}
 		
